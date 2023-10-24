@@ -1,12 +1,10 @@
-
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_firebase/features/user_auth/presentation/pages/sign_up_page.dart';
 import 'package:flutter_firebase/features/user_auth/presentation/widgets/form_container_widget.dart';
+import 'package:flutter_firebase/global/common/toast.dart';
 
 import '../../firebase_auth_implementation/firebase_auth_services.dart';
-
-
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -16,16 +14,10 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
   bool _isSigning = false;
-
-
-
   final FirebaseAuthService _auth = FirebaseAuthService();
-
   TextEditingController _emailController = TextEditingController();
   TextEditingController _passwordController = TextEditingController();
-
 
   @override
   void dispose() {
@@ -34,11 +26,11 @@ class _LoginPageState extends State<LoginPage> {
     super.dispose();
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: Text("Login"),
       ),
       body: Center(
@@ -59,15 +51,23 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: "Email",
                 isPasswordField: false,
               ),
-              SizedBox(height: 10,),
+              SizedBox(
+                height: 10,
+              ),
               FormContainerWidget(
                 controller: _passwordController,
                 hintText: "Password",
                 isPasswordField: true,
               ),
-              SizedBox(height: 30,),
+              SizedBox(
+                height: 30,
+              ),
               GestureDetector(
-                onTap: _signIn,
+                onTap: (){
+
+                  _signIn();
+
+                },
                 child: Container(
                   width: double.infinity,
                   height: 45,
@@ -75,23 +75,45 @@ class _LoginPageState extends State<LoginPage> {
                     color: Colors.blue,
                     borderRadius: BorderRadius.circular(10),
                   ),
-                  child: Center(child:Text("Login",style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),)),
+                  child: Center(
+                    child:_isSigning ? CircularProgressIndicator(color: Colors.white,): Text(
+                      "Login",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
               ),
-              SizedBox(height: 20,),
-              Row(mainAxisAlignment: MainAxisAlignment.center,
+              SizedBox(
+                height: 20,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text("Don't have an account?"),
-                  SizedBox(width: 5,),
+                  SizedBox(
+                    width: 5,
+                  ),
                   GestureDetector(
-                      onTap: (){
-                        Navigator.pushAndRemoveUntil(context, MaterialPageRoute(builder: (context) => SignUpPage()), (route) => false);
-                      },
-                      child: Text("Sign Up",style: TextStyle(color: Colors.blue,fontWeight: FontWeight.bold),))
+                    onTap: () {
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignUpPage()),
+                        (route) => false,
+                      );
+                    },
+                    child: Text(
+                      "Sign Up",
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ],
-              )
-
-
+              ),
             ],
           ),
         ),
@@ -101,17 +123,24 @@ class _LoginPageState extends State<LoginPage> {
 
   void _signIn() async {
 
+    setState(() {
+      _isSigning = true;
+    });
+
     String email = _emailController.text;
     String password = _passwordController.text;
 
     User? user = await _auth.signInWithEmailAndPassword(email, password);
 
-    if (user!= null){
-      print("User is successfully signedIn");
-      Navigator.pushNamed(context, "/home");
-    } else{
-      print("Some error happend");
-    }
+setState(() {
+  _isSigning = false;
+});
 
+    if (user != null) {
+      showToast(message: "User is successfully signed in");
+      Navigator.pushNamed(context, "/home");
+    } else {
+      showToast(message: "some error occured");
+    }
   }
 }
