@@ -43,6 +43,7 @@ class _FormContainerWidgetState extends State<FormContainerWidget> {
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
+      clipBehavior: Clip.hardEdge,
       decoration: BoxDecoration(
         color: Colors.grey.withOpacity(.35),
         borderRadius: BorderRadius.circular(10),
